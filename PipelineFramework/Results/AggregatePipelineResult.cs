@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PipelineFramework
@@ -9,10 +10,17 @@ namespace PipelineFramework
 
         public bool IsSuccess { get; }
 
+        public Exception Exception { get; }
+
         public AggregatePipelineResult(IEnumerable<IPipelineResult> results)
         {
             this.Results = results;
             this.IsSuccess = results.All(r => r.IsSuccess);
+
+            if (!this.IsSuccess)
+            {
+                this.Exception = new AggregateException(results.Select(r => r.Exception));
+            }
         }
     }
 }

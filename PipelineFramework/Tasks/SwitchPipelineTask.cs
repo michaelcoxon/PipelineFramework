@@ -11,27 +11,24 @@ namespace PipelineFramework
         private readonly IEnumerable<ConditionalTask<TContext>> _cases;
         private readonly IPipelineTask<TContext> _default;
 
-        public SwitchPipelineTask(TContext context, IEnumerable<ConditionalTask<TContext>> cases, IPipelineTask<TContext> @default = null)
+        public SwitchPipelineTask(IEnumerable<ConditionalTask<TContext>> cases, IPipelineTask<TContext> @default = null)
         {
-            this.Context = context;
             this._cases = cases;
             this._default = @default;
         }
 
-        public TContext Context { get; }
-
-        public async Task<IPipelineResult> ExecuteAsync()
+        public async Task<IPipelineResult> ExecuteAsync(TContext context)
         {
             try
             {
-                var @case = this._cases.SingleOrDefault(c => c.Rule());
+                var @case = this._cases.SingleOrDefault(c => c.Rule(context));
 
                 if (this._default == null)
                 {
                     throw new NotSupportedException("There is no default case");
                 }
 
-                return await @case.ExecuteAsync();
+                return await @case.ExecuteAsync(context);
             }
             catch (InvalidOperationException ex)
             {

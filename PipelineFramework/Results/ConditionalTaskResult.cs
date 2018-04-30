@@ -1,4 +1,6 @@
-﻿namespace PipelineFramework
+﻿using System;
+
+namespace PipelineFramework
 {
     public sealed class ConditionalTaskResult : IPipelineResult
     {
@@ -16,6 +18,7 @@
             {
                 this._result = ConditionalTaskResultEnum.Error;
             }
+            this.Exception = pipelineResult.Exception;
         }
 
         public ConditionalTaskResult(ConditionalTaskResultEnum wasNotRun)
@@ -24,5 +27,7 @@
         }
 
         public bool IsSuccess => this._result != ConditionalTaskResultEnum.Error;
+
+        public Exception Exception { get; }
     }
 }

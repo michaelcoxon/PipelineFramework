@@ -6,7 +6,7 @@ namespace PipelineFramework
     {
         public bool IsSuccess { get; }
 
-        public Exception Exception { get; set; }
+        public Exception Exception { get; }
 
         public PipelineResult()
         {

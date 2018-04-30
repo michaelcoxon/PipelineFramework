@@ -7,23 +7,23 @@ namespace PipelineFramework
 {
 
 
-    public sealed class Pipeline
+    public sealed class Pipeline<TContext>
     {
         private TaskLinkedListItem _rootTask;
         private TaskLinkedListItem _lastTask;
 
         private sealed class TaskLinkedListItem
         {
-            public IPipelineTask Task { get; }
+            public IPipelineTask<TContext> Task { get; }
             public TaskLinkedListItem NextTask { get; set; }
 
-            public TaskLinkedListItem(IPipelineTask task)
+            public TaskLinkedListItem(IPipelineTask<TContext> task)
             {
                 this.Task = task;
             }
         }
 
-        public void EnqueueTask(IPipelineTask task)
+        public void EnqueueTask(IPipelineTask<TContext> task)
         {
             if (this._rootTask == null)
             {
@@ -37,7 +37,7 @@ namespace PipelineFramework
             }
         }
 
-        public async Task<AggregatePipelineResult> ExecuteAsync()
+        public async Task<AggregatePipelineResult> ExecuteAsync(TContext context)
         {
             var results = new List<IPipelineResult>();
 
@@ -45,7 +45,7 @@ namespace PipelineFramework
 
             do
             {
-                results.Add(await task.Task.ExecuteAsync());
+                results.Add(await task.Task.ExecuteAsync(context));
                 task = task.NextTask;
             }
             while (task != null);

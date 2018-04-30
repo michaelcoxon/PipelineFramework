@@ -4,4 +4,12 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="PipelineFramework.v3.ncrunchproject" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EnsureFramework" Version="1.1.0" />
+  </ItemGroup>
+
 </Project>

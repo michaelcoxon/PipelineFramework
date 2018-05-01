@@ -43,16 +43,10 @@ namespace PipelineFramework.UnitTests
         [Fact]
         public async Task BuildSimpleTaskTreeWithCondition()
         {
-            var context = new Wrapper<string>
-            {
-                Value = "HelLO wOrld!"
-            };
-
             var builder = new PipelineTaskBuilder<Wrapper<string>>();
 
             var pipeline = builder
                 .BeginPipeline()
-                    .RunAction(ctx => ctx.Value = ctx.Value.ToLower())
                     .If(ctx => ctx.Value.StartsWith('h'))
                         .BeginPipeline()
                             .RunAction(ctx => ctx.Value = string.Concat((new[] { char.ToUpper(ctx.Value.First()) }).Concat(ctx.Value.Skip(1).ToArray())))
@@ -61,24 +55,33 @@ namespace PipelineFramework.UnitTests
                 .EndPipeline()
                 .Build();
 
-            var result = await pipeline.ExecuteAsync(context);
+            {
+                var context = new Wrapper<string>
+                {
+                    Value = "helLO wOrld!"
+                };
+                var result = await pipeline.ExecuteAsync(context);
 
-            Assert.Equal("Hello world!", context.Value);
+                Assert.Equal("HelLO wOrld!", context.Value);
+            }
+            {
+                var context = new Wrapper<string>
+                {
+                    Value = "HelLO wOrld!"
+                };
+                var result = await pipeline.ExecuteAsync(context);
+
+                Assert.Equal("HelLO wOrld!", context.Value);
+            }
         }
 
         [Fact]
         public async Task BuildSimpleTaskTreeWithConditionElse()
         {
-            var context = new Wrapper<string>
-            {
-                Value = "HelLO wOrld!"
-            };
-
             var builder = new PipelineTaskBuilder<Wrapper<string>>();
 
             var pipeline = builder
                 .BeginPipeline()
-                    .RunAction(ctx => ctx.Value = ctx.Value.ToUpper())
                     .If(ctx => ctx.Value.StartsWith('h'))
                         .BeginPipeline()
                             .RunAction(ctx => ctx.Value = string.Concat((new[] { char.ToUpper(ctx.Value.First()) }).Concat(ctx.Value.Skip(1).ToArray())))
@@ -90,10 +93,26 @@ namespace PipelineFramework.UnitTests
                     .EndIf()
                 .EndPipeline()
                 .Build();
+            {
+                var context = new Wrapper<string>
+                {
+                    Value = "HelLO wOrld!"
+                };
 
-            var result = await pipeline.ExecuteAsync(context);
+                var result = await pipeline.ExecuteAsync(context);
 
-            Assert.Equal("hELLO WORLD!", context.Value);
+                Assert.Equal("helLO wOrld!", context.Value);
+            }
+            {
+                var context = new Wrapper<string>
+                {
+                    Value = "helLO wOrld!"
+                };
+
+                var result = await pipeline.ExecuteAsync(context);
+
+                Assert.Equal("HelLO wOrld!", context.Value);
+            }
         }
     }
 }

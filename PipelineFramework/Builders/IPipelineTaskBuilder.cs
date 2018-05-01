@@ -8,6 +8,8 @@ namespace PipelineFramework
 {
     public interface IPipelineTaskBuilder<TContext>
     {
+        IPipelineTaskBuilder<TContext> Builder { get; }
+
         IPipelineTask<TContext> Build();
     }
 }

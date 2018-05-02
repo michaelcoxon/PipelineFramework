@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace PipelineFramework
 {
-    public static class ActionTaskBuilderExtensions
+    public static class ActionTaskPipelineBuilderExtensions
     {
         public static AggregatePipelineTaskBuilder<TPipelineTaskBuilder, TContext> RunAction<TPipelineTaskBuilder, TContext>(this AggregatePipelineTaskBuilder<TPipelineTaskBuilder, TContext> builder, Action<TContext> action)
             where TPipelineTaskBuilder : IPipelineTaskBuilder<TContext>
         {
-            var task = new ActionTaskBuilder<TContext>(builder)
+            var task = new ActionTaskPipelineBuilder<TContext>(builder)
             {
                 Action = action
             };

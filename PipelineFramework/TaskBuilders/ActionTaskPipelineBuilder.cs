@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace PipelineFramework
 {
-    public sealed class ActionTaskBuilder<TContext> : IPipelineTaskBuilder<TContext>
+    public sealed class ActionTaskPipelineBuilder<TContext> : IPipelineTaskBuilder<TContext>
     {
         public Action<TContext> Action { get; set; }
 
         public IPipelineTaskBuilder<TContext> Builder { get; }
 
-        public ActionTaskBuilder(IPipelineTaskBuilder<TContext> builder)
+        public ActionTaskPipelineBuilder(IPipelineTaskBuilder<TContext> builder)
         {
             Ensure.Arg(builder, nameof(builder)).IsNotNull();
 

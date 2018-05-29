@@ -1,4 +1,5 @@
 ﻿using EnsureFramework;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,15 @@ namespace PipelineFramework
         {
             Ensure.Arg(this.Tasks, nameof(this.Tasks)).IsNotNullOrEmpty();
 
-            return new AggregatePipelineTask<TContext>(this.Tasks.Select(b => b.Build()));
+            using (var logger = LoggerProvider.Create<AggregatePipelineTaskBuilder<TParentPipelineTaskBuilder, TContext>>())
+            {
+                logger.LogTrace($"Entering '{this.GetType()}.{nameof(this.Build)}'");
+
+                var result = new AggregatePipelineTask<TContext>(this.Tasks.Select(b => b.Build()));
+                logger.LogTrace($"Leaving '{this.GetType()}.{nameof(this.Build)}'");
+
+                return result;
+            }
         }
     }
 
@@ -83,7 +92,15 @@ namespace PipelineFramework
         {
             Ensure.Arg(this.Tasks, nameof(this.Tasks)).IsNotNullOrEmpty();
 
-            return new AggregatePipelineTask<TNewContext>(this.Tasks.Select(b => b.Build()));
+            using (var logger = LoggerProvider.Create<AggregatePipelineNewContextTaskBuilder<TParentPipelineTaskBuilder, TParentContext, TNewContext>>())
+            {
+                logger.LogTrace($"Entering '{this.GetType()}.{nameof(this.Build)}'");
+
+                var result = new AggregatePipelineTask<TNewContext>(this.Tasks.Select(b => b.Build()));
+                logger.LogTrace($"Leaving '{this.GetType()}.{nameof(this.Build)}'");
+
+                return result;
+            }
         }
     }
 }

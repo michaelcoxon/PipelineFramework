@@ -9,7 +9,9 @@ namespace PipelineFramework
 {
     public static class ConditionalPipelineTaskBuilderExtensions
     {
-        public static ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> If<TPipelineTaskBuilder, TParentContext, TContext>(this IAggregatePipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> builder, Expression<Func<TContext, bool>> condition)
+        public static IAggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext>, TContext, TContext> If<TPipelineTaskBuilder, TParentContext, TContext>(
+            this IAggregatePipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> builder, 
+            Expression<Func<TContext, bool>> condition)
             where TPipelineTaskBuilder : IPipelineTaskBuilder<TParentContext>
         {
             var task = new ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext>(builder)
@@ -22,38 +24,25 @@ namespace PipelineFramework
             var aggBuilder = new AggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext>, TContext>(task);
             task.TrueTask = aggBuilder;
 
-            return task;
+            return task.TrueTask;
         }
 
-        public static IAggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext>, TContext, TContext> BeginPipeline<TPipelineTaskBuilder, TParentContext, TContext>(this ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> builder)
+        public static IAggregatePipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> EndIf<TPipelineTaskBuilder, TParentContext, TContext>(
+            this IAggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext>, TContext, TContext> builder)
             where TPipelineTaskBuilder : IPipelineTaskBuilder<TParentContext>
         {
-            if (!builder.TrueTask.Closed)
-            {
-                return builder.TrueTask;
-            }
-            else if (builder.FalseTask != null && !builder.FalseTask.Closed)
-            {
-                return builder.FalseTask;
-            }
-
-            throw new Exception("Cannot begin a pipeline that is already closed");
+            return builder.Builder.Builder;
         }
 
-        public static IAggregatePipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> EndIf<TPipelineTaskBuilder, TParentContext, TContext>(this ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> builder)
+        public static IAggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext>, TContext, TContext> Else<TPipelineTaskBuilder, TParentContext, TContext>(
+            this IAggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext>, TContext, TContext> builder)
             where TPipelineTaskBuilder : IPipelineTaskBuilder<TParentContext>
         {
-            return builder.Builder;
-        }
+            var aggBuilder = new AggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext>, TContext>(builder.Builder);
 
-        public static ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> Else<TPipelineTaskBuilder, TParentContext, TContext>(this ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> builder)
-            where TPipelineTaskBuilder : IPipelineTaskBuilder<TParentContext>
-        {
-            var aggBuilder = new AggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext>, TContext>(builder);
+            builder.Builder.FalseTask = aggBuilder;
 
-            builder.FalseTask = aggBuilder;
-
-            return builder;
+            return builder.Builder.FalseTask;
         }
     }
 }

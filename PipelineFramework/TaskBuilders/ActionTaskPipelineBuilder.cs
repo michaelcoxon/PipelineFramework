@@ -1,4 +1,5 @@
 ﻿using EnsureFramework;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,16 @@ namespace PipelineFramework
         {
             Ensure.Arg(this.Action, nameof(this.Action)).IsNotNull();
 
-            return new ActionPipelineTask<TContext>(this.Action);
+            using (var logger = LoggerProvider.Create<ActionTaskPipelineBuilder<TContext>>())
+            {
+                logger.LogTrace($"Entering '{this.GetType()}.{nameof(this.Build)}'");
+
+                var result = new ActionPipelineTask<TContext>(this.Action);
+
+                logger.LogTrace($"Leaving '{this.GetType()}.{nameof(this.Build)}'");
+
+                return result;
+            }
         }
     }
 }

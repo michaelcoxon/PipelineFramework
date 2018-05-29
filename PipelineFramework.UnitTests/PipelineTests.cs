@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace PipelineFramework.UnitTests
 {
@@ -10,6 +11,17 @@ namespace PipelineFramework.UnitTests
         private class Wrapper<T>
         {
             public T Value { get; set; }
+        }
+
+        public PipelineTests()
+        {
+            LoggerProvider.SetCurrentLoggerProvider(
+                new LoggerProvider(
+                    new LoggerFactory()
+                        .AddConsole(LogLevel.Trace, true)
+                        .AddDebug(LogLevel.Trace)
+                )
+            );
         }
 
         [Fact]
@@ -48,9 +60,7 @@ namespace PipelineFramework.UnitTests
             var pipeline = builder
                 .BeginPipeline()
                     .If(ctx => ctx.Value.StartsWith('h'))
-                        .BeginPipeline()
-                            .RunAction(ctx => ctx.Value = string.Concat((new[] { char.ToUpper(ctx.Value.First()) }).Concat(ctx.Value.Skip(1).ToArray())))
-                        .EndPipeline()
+                        .RunAction(ctx => ctx.Value = string.Concat((new[] { char.ToUpper(ctx.Value.First()) }).Concat(ctx.Value.Skip(1).ToArray())))
                     .EndIf()
                 .EndPipeline()
                 .Build();
@@ -83,13 +93,9 @@ namespace PipelineFramework.UnitTests
             var pipeline = builder
                 .BeginPipeline()
                     .If(ctx => ctx.Value.StartsWith('h'))
-                        .BeginPipeline()
-                            .RunAction(ctx => ctx.Value = string.Concat((new[] { char.ToUpper(ctx.Value.First()) }).Concat(ctx.Value.Skip(1).ToArray())))
-                        .EndPipeline()
+                        .RunAction(ctx => ctx.Value = string.Concat((new[] { char.ToUpper(ctx.Value.First()) }).Concat(ctx.Value.Skip(1).ToArray())))
                     .Else()
-                        .BeginPipeline()
-                            .RunAction(ctx => ctx.Value = string.Concat((new[] { char.ToLower(ctx.Value.First()) }).Concat(ctx.Value.Skip(1).ToArray())))
-                        .EndPipeline()
+                        .RunAction(ctx => ctx.Value = string.Concat((new[] { char.ToLower(ctx.Value.First()) }).Concat(ctx.Value.Skip(1).ToArray())))
                     .EndIf()
                 .EndPipeline()
                 .Build();
@@ -123,17 +129,11 @@ namespace PipelineFramework.UnitTests
             var pipeline = builder
                 .BeginPipeline()
                     .ForEach(ctx => ctx.Value)
-                        .BeginPipeline()
-                            .If(ctx => ctx.Value.Value.StartsWith('h'))
-                                .BeginPipeline()
-                                    .RunAction(ctx => ctx.Value.Value = string.Concat((new[] { char.ToUpper(ctx.Value.Value.First()) }).Concat(ctx.Value.Value.Skip(1).ToArray())))
-                                .EndPipeline()
-                            .Else()
-                                .BeginPipeline()
-                                    .RunAction(ctx => ctx.Value.Value = string.Concat((new[] { char.ToLower(ctx.Value.Value.First()) }).Concat(ctx.Value.Value.Skip(1).ToArray())))
-                                .EndPipeline()
-                            .EndIf()
-                        .EndPipeline()
+                        .If(ctx => ctx.Value.Value.StartsWith('h'))
+                            .RunAction(ctx => ctx.Value.Value = string.Concat((new[] { char.ToUpper(ctx.Value.Value.First()) }).Concat(ctx.Value.Value.Skip(1).ToArray())))
+                        .Else()
+                            .RunAction(ctx => ctx.Value.Value = string.Concat((new[] { char.ToLower(ctx.Value.Value.First()) }).Concat(ctx.Value.Value.Skip(1).ToArray())))
+                        .EndIf()
                     .EndForEach()
                 .EndPipeline()
                 .Build();
@@ -166,21 +166,13 @@ namespace PipelineFramework.UnitTests
             var pipeline = builder
                 .BeginPipeline()
                     .ForEach(ctx => ctx.Value)
-                        .BeginPipeline()
-                            .ForEach(ctx => ctx.Value.Value)
-                                .BeginPipeline()
-                                    .If(ctx => ctx.Value.Value.StartsWith('h'))
-                                        .BeginPipeline()
-                                            .RunAction(ctx => ctx.Value.Value = string.Concat((new[] { char.ToUpper(ctx.Value.Value.First()) }).Concat(ctx.Value.Value.Skip(1).ToArray())))
-                                        .EndPipeline()
-                                    .Else()
-                                        .BeginPipeline()
-                                            .RunAction(ctx => ctx.Value.Value = string.Concat((new[] { char.ToLower(ctx.Value.Value.First()) }).Concat(ctx.Value.Value.Skip(1).ToArray())))
-                                        .EndPipeline()
-                                    .EndIf()
-                                .EndPipeline()
-                            .EndForEach()
-                        .EndPipeline()
+                        .ForEach(ctx => ctx.Value.Value)
+                            .If(ctx => ctx.Value.Value.StartsWith('h'))
+                                .RunAction(ctx => ctx.Value.Value = string.Concat((new[] { char.ToUpper(ctx.Value.Value.First()) }).Concat(ctx.Value.Value.Skip(1).ToArray())))
+                            .Else()
+                                .RunAction(ctx => ctx.Value.Value = string.Concat((new[] { char.ToLower(ctx.Value.Value.First()) }).Concat(ctx.Value.Value.Skip(1).ToArray())))
+                            .EndIf()
+                        .EndForEach()
                     .EndForEach()
                 .EndPipeline()
                 .Build();

@@ -6,21 +6,20 @@ using System.Text;
 
 namespace PipelineFramework
 {
-    public sealed class ConditionalPipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TContext> : IPipelineTaskBuilder<TContext>
-        where TAggregatePipelineTaskBuilderParent : IPipelineTaskBuilder<TContext>
+    public sealed class ConditionalPipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TParentContext, TContext> : IPipelineTaskBuilder<TContext>
+        where TAggregatePipelineTaskBuilderParent : IPipelineTaskBuilder<TParentContext>
     {
         public Expression<Func<TContext, bool>> Condition { get; set; }
 
-        public AggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TContext>, TContext> TrueTask { get; set; }
+        public IAggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TParentContext, TContext>, TContext, TContext> TrueTask { get; set; }
 
-        public AggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TContext>, TContext> FalseTask { get; set; }
-        
-        public AggregatePipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TContext> Builder { get; }
+        public IAggregatePipelineTaskBuilder<ConditionalPipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TParentContext, TContext>, TContext, TContext> FalseTask { get; set; }
 
-        public ConditionalPipelineTaskBuilder(AggregatePipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TContext> builder)
+        public IAggregatePipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TParentContext, TContext> Builder { get; }
+
+        public ConditionalPipelineTaskBuilder(IAggregatePipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TParentContext, TContext> builder)
         {
             Ensure.Arg(builder, nameof(builder)).IsNotNull();
-
             this.Builder = builder;
         }
 
@@ -43,8 +42,5 @@ namespace PipelineFramework
                     this.FalseTask.Build());
             }
         }
-
-        IPipelineTaskBuilder<TContext> IPipelineTaskBuilder<TContext>.Builder => this.Builder;
-
     }
 }

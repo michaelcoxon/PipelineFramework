@@ -114,5 +114,48 @@ namespace PipelineFramework.UnitTests
                 Assert.Equal("HelLO wOrld!", context.Value);
             }
         }
+
+        [Fact]
+        public async Task BuildSimpleTaskTreeWithForEachAndConditionElse()
+        {
+            var builder = new PipelineTaskBuilder<Wrapper<Wrapper<string>[]>>();
+
+            var pipeline = builder
+                .BeginPipeline()
+                    .ForEach(ctx => ctx.Value)
+                        .BeginPipeline()
+                            .If(ctx => ctx.Value.Value.StartsWith('h'))
+                                .BeginPipeline()
+                                    .RunAction(ctx => ctx.Value.Value = string.Concat((new[] { char.ToUpper(ctx.Value.Value.First()) }).Concat(ctx.Value.Value.Skip(1).ToArray())))
+                                .EndPipeline()
+                            .Else()
+                                .BeginPipeline()
+                                    .RunAction(ctx => ctx.Value.Value = string.Concat((new[] { char.ToLower(ctx.Value.Value.First()) }).Concat(ctx.Value.Value.Skip(1).ToArray())))
+                                .EndPipeline()
+                            .EndIf()
+                        .EndPipeline()
+                    .EndForEach()
+                .EndPipeline()
+                .Build();
+            {
+                var context = new Wrapper<Wrapper<string>[]>
+                {
+                    Value = new[]
+                    {
+                        new Wrapper<string>{Value= "HelLO wOrld!" },
+                        new Wrapper<string>{Value= "hellO wOrld!" },
+                        new Wrapper<string>{Value= "HelLO wOrld!" },
+                        new Wrapper<string>{Value= "helLO w0rld!" },
+                    }
+                };
+
+                var result = await pipeline.ExecuteAsync(context);
+
+                Assert.Equal("helLO wOrld!", context.Value[0].Value);
+                Assert.Equal("HellO wOrld!", context.Value[1].Value);
+                Assert.Equal("helLO wOrld!", context.Value[2].Value);
+                Assert.Equal("HelLO w0rld!", context.Value[3].Value);
+            }
+        }
     }
 }

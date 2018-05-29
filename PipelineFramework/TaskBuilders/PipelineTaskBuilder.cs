@@ -10,8 +10,6 @@ namespace PipelineFramework
     {
         private AggregatePipelineTaskBuilder<PipelineTaskBuilder<TContext>, TContext> _rootTask;
 
-        public IPipelineTaskBuilder<TContext> Builder => throw new NotImplementedException();
-
         public AggregatePipelineTaskBuilder<PipelineTaskBuilder<TContext>, TContext> BeginPipeline()
         {
             if (this._rootTask != null)

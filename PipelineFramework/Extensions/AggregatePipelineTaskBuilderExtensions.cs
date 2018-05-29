@@ -8,8 +8,8 @@ namespace PipelineFramework
 {
     public static class AggregatePipelineTaskBuilderExtensions
     {
-        public static TPipelineTaskBuilder EndPipeline<TPipelineTaskBuilder, TContext>(this AggregatePipelineTaskBuilder<TPipelineTaskBuilder, TContext> builder)
-            where TPipelineTaskBuilder : IPipelineTaskBuilder<TContext>
+        public static TPipelineTaskBuilder EndPipeline<TPipelineTaskBuilder, TParentContext, TContext>(this IAggregatePipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> builder)
+            where TPipelineTaskBuilder : IPipelineTaskBuilder<TParentContext>
         {
             builder.Close();
             return builder.Builder;

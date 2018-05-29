@@ -10,10 +10,10 @@ namespace PipelineFramework
 {
     public static class ActionTaskPipelineBuilderExtensions
     {
-        public static AggregatePipelineTaskBuilder<TPipelineTaskBuilder, TContext> RunAction<TPipelineTaskBuilder, TContext>(this AggregatePipelineTaskBuilder<TPipelineTaskBuilder, TContext> builder, Action<TContext> action)
-            where TPipelineTaskBuilder : IPipelineTaskBuilder<TContext>
+        public static IAggregatePipelineTaskBuilder<TPipelineTaskBuilder,TParentContext, TContext> RunAction<TPipelineTaskBuilder, TParentContext, TContext>(this IAggregatePipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> builder, Action<TContext> action)
+            where TPipelineTaskBuilder : IPipelineTaskBuilder<TParentContext>
         {
-            var task = new ActionTaskPipelineBuilder<TContext>(builder)
+            var task = new ActionTaskPipelineBuilder<TContext>()
             {
                 Action = action
             };

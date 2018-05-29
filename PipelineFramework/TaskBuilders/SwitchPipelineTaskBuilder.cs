@@ -9,14 +9,12 @@ namespace PipelineFramework
 {
     public class SwitchPipelineTaskBuilder<TContext> : IPipelineTaskBuilder<TContext>
     {
-        public ICollection<ConditionalPipelineTaskBuilder<SwitchPipelineTaskBuilder<TContext>, TContext>> Cases { get; }
+        public ICollection<ConditionalPipelineTaskBuilder<SwitchPipelineTaskBuilder<TContext>, TContext, TContext>> Cases { get; }
         public IPipelineTaskBuilder<TContext> DefaultPipelineTask { get; set; }
-        public IPipelineTaskBuilder<TContext> Builder { get; }
 
-        public SwitchPipelineTaskBuilder(IPipelineTaskBuilder<TContext> builder)
+        public SwitchPipelineTaskBuilder()
         {
-            this.Builder = builder;
-            this.Cases = new List<ConditionalPipelineTaskBuilder<SwitchPipelineTaskBuilder<TContext>, TContext>>();
+            this.Cases = new List<ConditionalPipelineTaskBuilder<SwitchPipelineTaskBuilder<TContext>, TContext, TContext>>();
         }
 
         public IPipelineTask<TContext> Build()

@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 
 namespace PipelineFramework
 {
-    public sealed class ForEachPipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TContext, TElement> : IPipelineTaskBuilder<TContext>
-        where TAggregatePipelineTaskBuilderParent : IPipelineTaskBuilder<TContext>
+    public sealed class ForEachPipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TParentContext, TContext, TElement> : IPipelineTaskBuilder<TContext>
+        where TAggregatePipelineTaskBuilderParent : IPipelineTaskBuilder<TParentContext>
     {
         public bool Closed { get; private set; }
 
         public Expression<Func<TContext, IEnumerable<TElement>>> Selector { get; set; }
 
-        public IAggregatePipelineTaskBuilder<ForEachPipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TContext, TElement>, TContext, IForEachTaskContext<TContext, TElement>> Task { get; set; }
+        public IAggregatePipelineTaskBuilder<ForEachPipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TParentContext, TContext, TElement>, TContext, IForEachTaskContext<TContext, TElement>> Task { get; set; }
 
-        public IAggregatePipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TContext, TContext> Builder { get; }
+        public IAggregatePipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TParentContext, TContext> Builder { get; }
 
-        public ForEachPipelineTaskBuilder(IAggregatePipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TContext, TContext> builder)
+        public ForEachPipelineTaskBuilder(IAggregatePipelineTaskBuilder<TAggregatePipelineTaskBuilderParent, TParentContext, TContext> builder)
         {
             this.Builder = builder;
         }

@@ -10,25 +10,28 @@ namespace PipelineFramework
 {
     public static class ForeachTaskPipelineBuilderExtensions
     {
-        public static ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TContext, TElement> ForEach<TPipelineTaskBuilder, TContext, TElement>(
-            this IAggregatePipelineTaskBuilder<TPipelineTaskBuilder, TContext, TContext> builder, Expression<Func<TContext, IEnumerable<TElement>>> selector)
-          where TPipelineTaskBuilder : IPipelineTaskBuilder<TContext>
+
+        public static ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext, TElement> ForEach<TPipelineTaskBuilder, TParentContext, TContext, TElement>(
+            this IAggregatePipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> builder,
+            Expression<Func<TContext, IEnumerable<TElement>>> selector)
+            where TPipelineTaskBuilder : IPipelineTaskBuilder<TParentContext>
         {
-            var task = new ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TContext, TElement>(builder)
+            var task = new ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext, TElement>(builder)
             {
                 Selector = selector
             };
 
             builder.EnqueueTask(task);
 
-            var aggBuilder = new AggregatePipelineNewContextTaskBuilder<ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TContext, TElement>, TContext, IForEachTaskContext<TContext, TElement>>(task);
+            var aggBuilder = new AggregatePipelineNewContextTaskBuilder<ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext, TElement>, TContext, IForEachTaskContext<TContext, TElement>>(task);
             task.Task = aggBuilder;
 
             return task;
         }
 
-        public static IAggregatePipelineTaskBuilder<ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TContext, TElement>, TContext, IForEachTaskContext<TContext, TElement>> BeginPipeline<TPipelineTaskBuilder, TContext, TElement>(this ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TContext, TElement> builder)
-           where TPipelineTaskBuilder : IPipelineTaskBuilder<TContext>
+        public static IAggregatePipelineTaskBuilder<ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext, TElement>, TContext, IForEachTaskContext<TContext, TElement>> BeginPipeline<TPipelineTaskBuilder, TParentContext, TContext, TElement>(
+            this ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext, TElement> builder)
+            where TPipelineTaskBuilder : IPipelineTaskBuilder<TParentContext>
         {
             if (!builder.Task.Closed)
             {
@@ -38,8 +41,9 @@ namespace PipelineFramework
             throw new Exception("Cannot begin a pipeline that is already closed");
         }
 
-        public static IAggregatePipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TParentContext> EndForEach<TPipelineTaskBuilder, TParentContext, TElement>(
-            this ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TElement> builder)
+
+        public static IAggregatePipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext> EndForEach<TPipelineTaskBuilder, TParentContext, TContext, TElement>(
+            this ForEachPipelineTaskBuilder<TPipelineTaskBuilder, TParentContext, TContext, TElement> builder)
             where TPipelineTaskBuilder : IPipelineTaskBuilder<TParentContext>
         {
             return builder.Builder;
